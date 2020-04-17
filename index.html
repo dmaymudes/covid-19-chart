@@ -1,14 +1,14 @@
 <!doctype html>
 <html>
 <head>
-<title>COVID-19 Chart by State, County, and Country</title>
+<title>Live COVID-19 Chart</title>
 <meta name="description"
- content="Interactive chart of coronavirus cases over time, comparing states, counties, and countries around the world.">
+ content="Interactive chart of coronavirus cases.  Compare states, counties, and countries worldwide.">
 <meta property="og:url" content="https://covid19chart.org/">
 <meta property="og:title"
- content="COVID-19 Chart by State, County, and Country" />
+ content="Live COVID-19 Chart" />
 <meta property="og:description"
- content="Interactive chart of coronavirus cases over time." />
+ content="Interactive chart of coronavirus cases.  Compare states, counties, and countries worldwide." />
 <meta property="og:image"
  content="https://covid19chart.org/image/covid19chart_site_image.png"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -162,16 +162,16 @@ href="https://github.com/CSSEGISandData/COVID-19/">Johns Hopkins CSSE</a>.
 </div>
 </div>
 </form
-><div id="chart" class="pane-chart ct-chart ct-perfect-fourth"></div
+><div id="chart" :class="['pane-chart', 'ct-chart', ratio_class]"></div
 ><div class="pane-credit">
 <div v-if="chosen_advanced == '1'">
 <p>
-Customized charts are directly linkable by URL.  URL parameters can be edited directly, or in the form below.  To plot a custom set of states or countries, use the "include" field; to omit the top 10, reduce the "top" field to zero.  Make bare plots for embedding with "bare=1".
+Customized charts are directly linkable by URL.  URL parameters can be edited directly, or in the form below.
 </p>
 <table>
 <tr><td>Domain:</td><td><input v-model.lazy="chosen_domain"> (US/Intl)</td></tr>
 <tr><td>Series:</td><td><input v-model.lazy="chosen_series"> (confirmed/deaths)</td></tr>
-<tr><td>Stat:</td><td><input v-model.lazy="chosen_stat"> (totals/deltas)</td></tr>
+<tr><td>Stat:</td><td><input v-model.lazy="chosen_stat"> (totals/daily/7day/growth)</td></tr>
 <tr><td>Scale:</td><td><input v-model.lazy="chosen_scale"> (linear/log10)</td></tr>
 <tr><td>Norm:</td><td><input v-model.lazy="chosen_norm"> (none/first/pop)</td></tr>
 <tr><td>Start:</td><td><input v-model.lazy="chosen_start"> (>=num, or m/d/y)</td></tr>
@@ -179,6 +179,7 @@ Customized charts are directly linkable by URL.  URL parameters can be edited di
 <tr><td>Include:</td><td><input v-model.lazy="chosen_include"> (';' between states)</td></tr>
 <tr><td>Select:</td><td><input v-model.lazy="chosen_select"> (';' between states)</td></tr>
 <tr><td>Theme:</td><td><input v-model.lazy="chosen_theme"> (white/dark/paper)</td></tr>
+<tr><td>Ratio:</td><td><input v-model.lazy="chosen_ratio"> (3/4, or <a href="https://github.com/gionkunz/chartist-js/blob/8ae511b85956d6f93f38619d85bc045aa51bcf2e/site/styles/modules/_scale.scss#L1-L16">octave...</a>)</td></tr>
 <tr><td>Advanced:</td><td> <input v-model.lazy="chosen_advanced"> (1 or 0)</td></tr>
 <tr><td>Bare:</td><td> <input v-model.lazy="chosen_bare"> (1 or 0)</td></tr>
 <tr><td colspan=2">
@@ -190,14 +191,13 @@ Bare chart embed code:<br>
 </table>
 </div>
 <div v-else>
-<p>For policymakers, the chart can <a :href="'#/?start=%3E%3D100&scale=log10&stat=totals&series=confirmed&theme='+chosen_theme">compare exponental growth of coronavirus cases</a>.
-Select the logarithmic totals with a &gt;=100 starting threshold, so that day zero is the first day there are 100 cases in a state. Over time, if different states' policies have different effects on the growth of the virus, the exponents, and thus the slopes, will reveal the differences.
+<p>For policymakers, the chart can <a :href="'#/?start=%3E%3D100&scale=log10&stat=totals&series=confirmed&theme='+chosen_theme">compare exponental growth of coronavirus cases on a log scale</a>, or visualize the <a :href="'#/?include=Italy%3BS%20Korea%3BJapan%3BSpain%3BChina&stat=growth&theme='+chosen_theme">exponential trends directly on a log-log scale</a>. Both these reval the similarities of epidemic in differnt parts of the world, and give a sense for whether specific local policies are succeding at decreasing exponential spread of the virus.  Plots can be normalized by population, so you can compare your small county to New York or S Korea.
 
-<p>For doctors who must deal with the patients who walk into the ER and who who lie sick in ICU beds, the <a :href="'#/?scale=linear&stat=deltas&start=2%2F29%2F20&series=deaths&theme='+chosen_theme">linear view of day-to-day changes</a> is more appropriate. To see these plots, switch to the 'delta linear' view in the current month. The spikes show why the panic is justified, and why minor policy changes have massive ramifications.
+<p>For doctors who must deal with the patients who walk into the ER and who who lie sick in ICU beds, the <a :href="'#/?scale=linear&stat=daily&start=3%2F1%2F20&series=deaths&theme='+chosen_theme">linear view of day-to-day changes</a> is more appropriate. To see these plots, switch to the 'delta linear' view in the current month. The spikes show why the panic is justified, and why minor policy changes have massive ramifications.
 
 <p>The graph you make will automatically update every day based on current data. Please share. And please isolate.
 
-<p>I made this plot to help my physician wife see summaries of US COVID-19 stats that are not being graphed in the press. The logarithmic view is inspired by <a href="https://www.google.com/search?q=John+Burn-Murdoch+covid-19">the FT COVID-19 plot by John Burn-Murdoch</a>, which reveals policy differences internationally.  It is an easy-to-modify HTML page (using chartist.js, vue.js, lodash.js); pull requests are welcome.
+<p>I made this plot to help my physician wife see summaries of US COVID-19 stats that are not being graphed in the press. The logarithmic view is inspired by <a href="https://www.google.com/search?q=John+Burn-Murdoch+covid-19">the FT COVID-19 plot by John Burn-Murdoch</a>. And the log-log view is adopted from the <a href="https://www.youtube.com/watch?v=54XLXg4fYsc">Minute Physics plot by Aatish Bhatia and Henry Reich</a>. This is an easy-to-modify HTML page (using chartist.js, vue.js, lodash.js); pull requests are welcome.
 </div>
 
 <p><a href="javascript:" v-on:click="chosen_advanced = 1 - chosen_advanced"
@@ -381,7 +381,8 @@ function apply_norm_rule(rule, extracted) {
   if (rule == 'none') { return extracted; }
   if (rule == 'first') {
     extracted.series = extracted.series.map(s => {
-      var first_pos_val = s[1].filter(d => d.value > 0)[0].value || 1;
+      var first_pos_val = s[1].slice(extracted.first_day)
+                              .filter(d => d && d.value > 0)[0].value || 1;
       return [s[0], s[1].map(
           d => d && _.defaults({
             meta: d.meta + ' (' + d.value + ')',
@@ -390,13 +391,13 @@ function apply_norm_rule(rule, extracted) {
     });
   }
   if (rule == 'pop') {
-    extracted.series = extracted.series.map(s => {
-      return [s[0], s[0] in POPULATION ? s[1].map(
+    extracted.series = extracted.series
+      .filter(s => s[0] in POPULATION)
+      .map(s => [s[0], s[1].map(
           d => d && _.defaults({
             meta: d.meta + ' (' + d.value + ')',
             value: +(d.value * 1000000 / POPULATION[s[0]]).toFixed(1)
-          }, d)) : {}];
-    });
+          }, d))])
   }
   return extracted;
 }
@@ -434,31 +435,37 @@ function allowable_start_rule(extracted, rule) {
   }
   return false;
 }
-function apply_start_rule(start, extracted) {
+function pad_array(a, pad_count) {
+  return _.concat(new Array(pad_count), a);
+}
+function apply_start_rule(start, norm, extracted) {
   var labels = extracted.labels;
   var data_series = extracted.series;
   if (start.startsWith('>=')) {
+    var first_day = labels.length;
     var min_v = parseInt(start.slice(2));
-    function shift_series(s, min) {
+    function shift_series(loc, s, min) {
+      if (norm == 'pop') {
+        if (loc in POPULATION) {
+          min *= POPULATION[loc] / 1000000;
+        }
+      }
       var first_i = _.findIndex(s, x => x != null && x.value >= min);
       if (first_i >= 0) {
-        return s.slice(first_i);
+        return [loc, _.concat(new Array(first_day - first_i), s)];
       } else {
-        return null;
+        return [loc, null];
       }
     }
-    data_series = data_series.map(x => [x[0], shift_series(x[1], min_v)]);
+    data_series = data_series.map(x => shift_series(x[0], x[1], min_v));
     data_series = data_series.filter(x => !!x[1]);
-    labels = _.range(0, _.max(data_series.map(x => x[1].length)));
-    return {labels: labels, series: data_series};
+    labels = _.range(-first_day,
+                 _.max(data_series.map(x => x[1].length)) - first_day);
+    return {labels: labels, series: data_series, first_day: first_day};
   }
   if (parse_date(start)) {
     var first_i = labels.indexOf(start);
-    if (first_i >= 0) {
-      labels = labels.slice(first_i);
-      data_series = data_series.map(x => [x[0], x[1].slice(first_i)]);
-    }
-    return {labels: labels, series: data_series};
+    return {labels: labels, series: data_series, first_day: first_i};
   }
   return {labels: labels, series: data_series};
 }
@@ -518,18 +525,30 @@ function extract_data(csse, domain, field, stat, topcount, include) {
   };
 }
 function yaxis_title(field, stat, scale, norm) {
-  var desc = {totals: 'Total cumulative ', deltas: 'Daily new '}[stat] +
-             {confirmed: 'confirmed cases', deaths: 'deaths'}[field] +
+  var stat_desc =
+      stat == 'totals' ? 'Total cumulative ' :
+      stat == 'growth' ? 'Weekly new ' :
+      parse_delta(stat) == 1 ? 'Daily new ' :
+      parse_delta(stat) + '-day average of daily ';
+  var desc = stat_desc +
+             {confirmed: 'confirmed', deaths: 'deaths'}[field] +
              {'first': ', / first day',
               'pop': ' per million',
               'none': ''}[norm] +
              (scale && scale.startsWith('log') ? ' (log scale)' : '');
   return desc;
 }
-function xaxis_title(field, start) {
+function xaxis_title(field, stat, scale, norm, start) {
+  if (stat == 'growth') {
+    return yaxis_title(field, 'totals', scale, norm);
+  }
   if (start.startsWith('>=')) {
-     return 'Days since ' + start.slice(2) + 'th ' +
+    if (norm == 'pop') {
+      return 'Days since ' + start.slice(2) + ' per million ' + field;
+    } else {
+      return 'Days since ' + start.slice(2) + 'th ' +
          {confirmed: 'case', deaths: 'death'}[field];
+    }
   }
   return '';
 }
@@ -543,26 +562,45 @@ function plot_series(extract, stat, scale, norm, xaxis, yaxis,
      select, updateSelect) {
   scale = scale || 'log10';
   if (chart) { chart.detach(); }
-  if (stat == 'deltas') {
+  var isGrowthChart = (stat == 'growth');
+  if (parse_delta(stat)) {
+    // How many days back do we go to calculate the delta
+    const deltaInterval = parse_delta(stat);
     extract.series = _.map(extract.series, p => [p[0], _.map(p[1], (d, i) => {
       if (i == 0) { return null; }
+      var prevIndex = i - deltaInterval;
       var cur = (d ? d.value : 0),
-          prev = (p[1][i-1] ? p[1][i-1].value : 0);
-      return _.defaults({value: cur - prev}, d);
+          prev = (p[1][prevIndex] ? p[1][prevIndex].value : 0);
+      return _.defaults({value: (cur - prev) / deltaInterval}, d);
     })]);
   }
-  if (scale.startsWith('log')) {
+  else if (isGrowthChart) {
+    // In this mode, We plot an x,y graph with x as the total count and 'y' as
+    // the weekly count (not the average for one day, unlike with 'deltas')
+    extract.series = _.map(extract.series, p => [p[0],_.map(p[1], (d, i) => {
+      var prevIndex = i - 7; // Use last week for 'x'
+      var cur = (d ? d.value : 0),
+          prev = (p[1][prevIndex] ? p[1][prevIndex].value : 0);
+      var point = _.defaults({ x: cur, y: (cur - prev) }, d);
+      delete point["value"]; // delete unwanted 'value' prop as we have x,y
+      return point;
+    })]);
+  }
+  if (scale.startsWith('log') || isGrowthChart) {
+    // When using log scale, we need to make sure we don't end up with entries
+    // that are missing their 'value' (or 'x/y') properties, as that breaks it
     extract.series = _.map(extract.series, p => [p[0], _.map(p[1], d => {
-      return d && d.value && d.value > 0 ? d : null;
+      return d && (d.value && d.value > 0 || d.x && d.x > 0 && d.y && d.y > 0)
+        ? d : null;
     })]);
   }
   chart = new Chartist.Line('#chart', {
-    labels: extract.labels.map(x => {
+    labels: extract.labels.slice(extract.first_day).map(x => {
       if (!x) return x;
       x = '' + x;
       return x.replace(/(\d+)\/(\d+)\/20$/, '$1/$2');
     }),
-    series: extract.series.map(x => x[1]),
+    series: extract.series.map(x => x[1].slice(extract.first_day)),
   }, {
     lineSmooth: Chartist.Interpolation.none({
       fillHoles: false
@@ -571,15 +609,20 @@ function plot_series(extract, stat, scale, norm, xaxis, yaxis,
       gridMinor: 'ct-grid-minor'
     },
     axisX: {
-      labelInterpolationFnc: function skipLabels(value, index) {
-        return index % 7  === (parse_date(extract.labels[0]) ?
+      labelInterpolationFnc: (value, index) => {
+        return isGrowthChart && scale.startsWith('log') ? value :
+          index % 7  === (parse_date(extract.labels[0]) ?
             (extract.labels.length - 1) % 7 : 0) ? value : null;
       },
+      type: isGrowthChart ? Chartist.AutoScaleAxis : undefined,
+      scale: isGrowthChart ? scale : 'linear',
+      onlyInteger: true,
     },
     axisY: {
       showMinorGrid: true,
       type: Chartist.AutoScaleAxis,
       scale: scale,
+      onlyInteger: true,
     },
     chartPadding: {
       top: 50,
@@ -729,15 +772,39 @@ function createCssStyles() {
       }
       .ct-hover.ct-hover-on-${i}
           .ct-series.ct-series-${String.fromCharCode(97+i)} text.ct-label {
-        fill: #000;
         font-weight: bold;
+        opacity: 1.0;
       }`;
     document.getElementsByTagName('head')[0].appendChild(style);
   }
 }
 
 //////////////////////////////////////////////////////////////////////
-// Selection.
+// Chartist aspect ratio classes.
+//////////////////////////////////////////////////////////////////////
+
+var RATIO_CHOICES = {
+  'square': '1/1',
+  'minor-second': '15/16',
+  'major-second': '8/9',
+  'minor-third': '5/6',
+  'major-third': '4/5',
+  'perfect-fourth': '3/4',
+  'perfect-fifth': '2/3',
+  'minor-sixth': '5/8',
+  'golden-section': '1/1.618',
+  'major-sixth': '3/5',
+  'minor-seventh': '9/16',
+  'major-seventh': '8/15',
+  'octave': '1/2',
+  'major-tenth': '2/5',
+  'major-eleventh': '3/8',
+  'major-twelfth': '1/3',
+  'double-octave': '1/4',
+};
+
+//////////////////////////////////////////////////////////////////////
+// selection.
 // The vue.js app is used to manage the user's selection of different
 // options.
 //////////////////////////////////////////////////////////////////////
@@ -751,10 +818,11 @@ theapp = new Vue({
     data_feed_name: data_feed_name,
     siteurl: window.location.protocol + '//' + window.location.host + '/',
     series_choices: ['confirmed', 'deaths'], // 'recovered' seems incomplete.
-    stat_choices: ['totals', 'deltas'],
+    stat_choices: ['totals', 'daily', '7day', 'growth'],
     scale_choices: ['linear', 'log10'],
     norm_choices: ['none', 'first', 'pop'],
     added_locality: null,
+    visible_localities: null,
     selectStateDomain: null // The domain that the saved state is for
   },
   updated: function() {
@@ -762,18 +830,16 @@ theapp = new Vue({
   },
   computed: {
     domain_choices: function() {
-      var choices = ['Intl', 'US'];
-      if (USA_STATES.hasOwnProperty(this.chosen_select)) {
-        choices.push(this.chosen_select);
-      } else if (parseInt(this.chosen_top) == 0 &&
-          USA_STATES.hasOwnProperty(this.chosen_include)) {
-        choices.push(this.chosen_include);
-      } else if (USA_STATES.hasOwnProperty(this.chosen_domain )) {
-        choices.push(this.chosen_domain);
+      var choices = ['Intl', 'US'], added = {};
+      function add(s) { if (!added[s]) { added[s] = 1; choices.push(s); } }
+      (this.visible_localities || []).forEach(s => {
+        if (USA_STATES.hasOwnProperty(s)) { add(s); }
+      });
+      if (USA_STATES.hasOwnProperty(this.chosen_domain)) {
+        add(this.chosen_domain);
       }
-      if (this.local_us_state != null &&
-          choices[choices.length - 1] != this.local_us_state) {
-        choices.push(this.local_us_state);
+      if (this.local_us_state != null) {
+        add(this.local_us_state);
       }
       return choices;
     },
@@ -793,6 +859,21 @@ theapp = new Vue({
           this.chosen_series, this.chosen_stat,
           this.chosen_top, this.chosen_include);
     },
+    ratio_class: function() {
+      if (this.chosen_ratio in RATIO_CHOICES) {
+        return 'ct-' + this.chosen_ratio;
+      }
+      var number = parse_frac(this.chosen_ratio);
+      if (number) {
+        var best = 'perfect-fourth', diff = Math.abs(number - 3/4);
+        for (var k in RATIO_CHOICES) {
+          var d = Math.abs(number - parse_frac(RATIO_CHOICES[k]));
+          if (d < diff) { best = k; diff = d; }
+        }
+        return 'ct-' + best;
+      }
+      return 'ct-perfect-fourth';
+    },
     chosen_domain: url_property('domain', 'US'),
     chosen_series: url_property('series', 'confirmed'),
     chosen_stat: url_property('stat', 'totals'),
@@ -805,6 +886,7 @@ theapp = new Vue({
     chosen_theme: url_property('theme', 'paper'),
     chosen_bare: url_property('bare', '0', true),
     chosen_advanced: url_property('advanced', '0'),
+    chosen_ratio: url_property('ratio', 'perfect-fourth'),
   },
   watch: {
     chosen_domain: function(val) {
@@ -825,23 +907,27 @@ theapp = new Vue({
       if (!allowable_start_rule(extract, this.chosen_start)) {
         this.chosen_start = this.start_choices[0];
       }
-      var shifted = apply_start_rule(this.chosen_start, extract);
+      var shifted = apply_start_rule(
+          this.chosen_start, this.chosen_norm, extract);
       var normalized = apply_norm_rule(this.chosen_norm, shifted);
       var ordered = _.defaults({
         series: reorderSeriesForColorStability(normalized.series)
       }, shifted);
       ordered.series.forEach(p => {
-        var lastPoint = _.last(p[1].filter(v => v.value > 0));
+        var lastPoint = _.last(p[1].filter(v => v && v.value > 0));
         if (lastPoint) { lastPoint.pointLabel = p[0]; }
       });
 
       var ytitle = yaxis_title(this.chosen_series, this.chosen_stat,
           this.chosen_scale, this.chosen_norm);
-      var xtitle = xaxis_title(this.chosen_series, this.chosen_start);
-      plot_series(ordered, this.chosen_stat, this.chosen_scale, this.chosen_norm,
+      var xtitle = xaxis_title(this.chosen_series, this.chosen_stat,
+          this.chosen_scale, this.chosen_norm, this.chosen_start);
+      plot_series(ordered,
+          this.chosen_stat, this.chosen_scale, this.chosen_norm,
           xtitle, ytitle,
           this.chosen_select,
           s => { this.chosen_select = s; });
+      this.visible_localities = extract.series.map(x => x[0]);
     }, 100),
     make_url: function(opts) {
       return this.siteurl + this.$router.resolve(
@@ -980,7 +1066,15 @@ function add_to_semilist(semilist, item) {
   }
   return semilist;
 }
-
+function parse_delta(s) {
+  var m = s.match(/^(?:deltas|daily|(\d*)day)$/);
+  if (!m) return null;
+  return parseInt(m[1]) || 1;
+}
+function parse_frac(s) {
+  var m = s.match(/^([\d\.]+)(?:\/([\d\.]+))?$/);
+  return m && parseFloat(m[1]) / parseFloat(m[2] || 1);
+}
 function svgstr(s) {
   if (s.baseVal) { s = s.baseVal; }
   return s;
